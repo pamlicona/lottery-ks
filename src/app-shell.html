@@ -1,0 +1,99 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymerfire/polymerfire.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-document.html">
+
+<dom-module id="app-shell">
+    <template>
+
+        <firebase-app
+            name="lottery"
+            api-key="AIzaSyBXBXR2sNIXloFbsfFbUtAljjcUAYcimFA"
+            auth-domain="lottery-ec068.firebaseapp.com"
+            database-url="https://lottery-ec068.firebaseio.com">
+        </firebase-app>
+
+        <firebase-document
+            app-name="lottery"
+            path="/inicial"
+            data="{{dataInicial}}">
+        </firebase-document>
+
+        <firebase-document
+            app-name="lottery"
+            path="/actualizada"
+            data="{{actualizada}}">
+        </firebase-document>
+
+        <button on-click="start">Start</button>
+        <div class="cont">
+          <div id="person"></div> 
+          <div id="gift"></div> 
+        </div>
+
+    </template>
+
+    <script>
+        class AppShell extends Polymer.Element {
+            static get is() { return 'app-shell'; }
+            static get properties() {
+                return {
+                    dataInicial: {
+                        type: Object
+                    },
+                    actualizada: {
+                        type: Object,
+                        observer: 'actualizadaChanged'
+                    },
+                    names: {
+                        type: Array,
+                        value: []
+                    },
+                    contador: {
+                        type: Number,
+                        value: 1
+                    },
+                    aleatorio: {
+                        type: Number
+                    }
+                };
+            }
+
+            actualizadaChanged() {
+                this.set('names', this.actualizada);
+                this.setLenght();
+            }
+
+            setLenght() {
+                if (this.names.length > 10) {
+                    this.aleatorio = Math.floor(Math.random() * 10) + 1;
+                } else {
+                    this.aleatorio = Math.floor(Math.random() * this.names.length) + 1;
+                }
+            }
+
+            start() {
+                let person = this.$.person;
+                let gift = this.$.gift;
+                let indice = Math.floor(Math.random() * this.names.length);
+                person.innerHTML = this.names[indice];
+                if (this.contador < this.aleatorio) {
+                    gift.innerHTML = "¡Suerte para la próxma!";
+                    this.contador++;
+                } else {
+                    gift.innerHTML = "¡Felicidades, ganaste!";
+                    this.contador = 1;
+                    this.setLenght(); 
+                }
+                this.splice('names', indice, 1);
+                this._saveData();
+            }
+
+            _saveData() {
+                let jsonSave = JSON.stringify(this.names);
+                this.set('actualizada', JSON.parse(jsonSave));
+            }
+        }
+        window.customElements.define(AppShell.is, AppShell);
+    </script>
+</dom-module>
