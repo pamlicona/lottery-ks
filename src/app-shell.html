@@ -2,9 +2,19 @@
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-app.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../bower_components/polymer/lib/elements/dom-if.html">
+
+<link rel="import" href="app-styles.html">
 
 <dom-module id="app-shell">
     <template>
+        <style include="app-styles">
+            :host {
+                display: block;
+                min-height: 700px;
+                background: #FFA500;
+            }
+        </style>
 
         <firebase-app
             name="lottery"
@@ -25,12 +35,23 @@
             data="{{actualizada}}">
         </firebase-document>
 
-        <button on-click="start">Start</button>
+        <firebase-document
+            app-name="lottery"
+            path="/premio"
+            data="{{premio}}">
+        </firebase-document>
+
+        <div class="cont-button">
+            <button on-click="start">Tirar</button>
+        </div>
         <div class="cont">
-          <div id="person"></div> 
-          <div id="gift"></div> 
+          <div class="card rotate" id="person"></div> 
+          <div class="card rotate" id="gift"></div> 
         </div>
 
+        <template is="dom-if" if="{{isPremio}}">
+            <div class="premio">Premio {{premio}}</div>
+        </template>
     </template>
 
     <script>
@@ -53,8 +74,22 @@
                         type: Number,
                         value: 1
                     },
+                    premio: {
+                        type: Object,
+                        value: 0
+                    },
                     aleatorio: {
                         type: Number
+                    },
+                    name_selected: {
+                        type: String
+                    },
+                    name_covered: {
+                        type: String
+                    },
+                    isPremio: {
+                        type: Boolean,
+                        value: false
                     }
                 };
             }
@@ -73,20 +108,71 @@
             }
 
             start() {
-                let person = this.$.person;
-                let gift = this.$.gift;
                 let indice = Math.floor(Math.random() * this.names.length);
-                person.innerHTML = this.names[indice];
+                this._setNames(indice);
+                this.message = '';
                 if (this.contador < this.aleatorio) {
-                    gift.innerHTML = "¡Suerte para la próxma!";
+                    this.message = "¡Mala suerte!";
+                    this.set('isPremio', false);
                     this.contador++;
                 } else {
-                    gift.innerHTML = "¡Felicidades, ganaste!";
+                    this.message = "¡Felicidades ganaste!";
                     this.contador = 1;
+                    this.set('premio', this.premio + 1);
                     this.setLenght(); 
                 }
+                this._setMessage();
                 this.splice('names', indice, 1);
                 this._saveData();
+            }
+
+            _setNames(indice) {
+                let person = this.$.person;
+                this.name_selected = this.names[indice].toUpperCase();
+                this.name_covered = this.name_selected.replace(/[^\s]/g, '_');
+                person.innerHTML = this.name_covered;
+                this.timerN = setInterval(() => this.decodeName(), 20);
+            }
+
+            _setMessage() {
+                let gift = this.$.gift;
+                this.gift_selected = this.message.toUpperCase();
+                this.gift_covered = this.gift_selected.replace(/[^\s]/g, '_');
+                gift.innerHTML = this.gift_covered;
+                this.timerG = setInterval(() => this.decodeGift(), 20);
+            }
+
+             decodeName() {
+                let newtextN = this.name_covered.split('').map(this.changeLetter(this.name_selected)).join('');
+                let person = this.$.person;
+                person.innerHTML = newtextN;
+                if (this.name_selected == this.name_covered) {
+                    clearTimeout(this.timerN);
+                    return false;
+                }
+                this.name_covered = newtextN;
+            }
+
+            decodeGift() {
+                let newtextG = this.gift_covered.split('').map(this.changeLetter(this.gift_selected)).join('');
+                let gift = this.$.gift;
+                gift.innerHTML = newtextG;
+                if (this.gift_selected == this.gift_covered) {
+                    this.isPremio = true ? this.message === "¡Felicidades ganaste!" : false;
+                    clearTimeout(this.timerG);
+                    return false;
+                }
+                this.gift_covered = newtextG;
+            }
+
+            changeLetter(selected) {
+                let replacements = 'ÁÉÍÓÚABCDEFGHIJKLMNOPQRSTUVWXYZ¡!Ñ ';
+                let replacementsLen = replacements.length;
+                return function(letter, index, err){
+                    return selected[index] == letter 
+                        ? letter 
+                        : replacements[Math.random() * replacementsLen | 0];
+                }
             }
 
             _saveData() {
