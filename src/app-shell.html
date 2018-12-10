@@ -3,6 +3,7 @@
 <link rel="import" href="../bower_components/polymerfire/firebase-app.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-document.html">
 <link rel="import" href="../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 
 <link rel="import" href="app-styles.html">
 
@@ -11,8 +12,6 @@
         <style include="app-styles">
             :host {
                 display: block;
-                min-height: 1000px;
-                background: #FFA500;
             }
         </style>
 
@@ -41,9 +40,28 @@
             data="{{premio}}">
         </firebase-document>
 
-        <div class="cont-button">
-            <button on-click="start">Tirar</button>
-            <button on-click="restart">Restaurar</button>
+        <div id="background-wrap">
+            <div class="bubble x1"></div>
+            <div class="bubble x2"></div>
+            <div class="bubble x3"></div>
+            <div class="bubble x4"></div>
+            <div class="bubble x5"></div>
+            <div class="bubble x6"></div>
+            <div class="bubble x7"></div>
+            <div class="bubble x8"></div>
+            <div class="bubble x9"></div>
+            <div class="bubble x10"></div>
+        </div>
+
+        <div class="header">
+            <div>
+                <paper-button raised class="pink" on-click="start">Tirar</paper-button>
+                <paper-button raised class="pink" on-click="restart">Restaurar</paper-button>
+            </div>
+            <div class="header-img">
+                <img src="../assets/logo.svg">
+                <p>Kairós</p>
+            </div>
         </div>
         <div class="cont">
           <div class="card rotate" id="person"></div> 
@@ -79,7 +97,7 @@
                         type: Object,
                         value: 0
                     },
-                    aleatorio: {
+                    /*aleatorio: {
                         type: Number
                     },
                     name_selected: {
@@ -87,7 +105,7 @@
                     },
                     name_covered: {
                         type: String
-                    },
+                    },*/
                     isPremio: {
                         type: Boolean,
                         value: false
@@ -97,16 +115,16 @@
 
             actualizadaChanged() {
                 this.set('names', this.actualizada);
-                this.setLenght();
+                //this.setLenght();
             }
 
-            setLenght() {
+            /*setLenght() {
                 if (this.names.length > 10) {
                     this.aleatorio = Math.floor(Math.random() * 10) + 1;
                 } else {
                     this.aleatorio = Math.floor(Math.random() * this.names.length) + 1;
                 }
-            }
+            }*/
 
             restart() {
                 let jsonSave = JSON.stringify(this.dataInicial);
@@ -118,10 +136,11 @@
             }
 
             start() {
+                this.$.gift.innerHTML = '';
                 let indice = Math.floor(Math.random() * this.names.length);
                 this._setNames(indice);
                 this.message = '';
-                if (this.contador < this.aleatorio) {
+                if (this.contador < 5) {
                     this.message = "¡Mala suerte!";
                     this.set('isPremio', false);
                     this.contador++;
@@ -129,9 +148,9 @@
                     this.message = "¡Felicidades ganaste!";
                     this.contador = 1;
                     this.set('premio', this.premio + 1);
-                    this.setLenght(); 
+                    //this.setLenght(); 
                 }
-                this._setMessage();
+                //this._setMessage();
                 this.splice('names', indice, 1);
                 this._saveData();
             }
@@ -146,10 +165,11 @@
 
             _setMessage() {
                 let gift = this.$.gift;
-                this.gift_selected = this.message.toUpperCase();
-                this.gift_covered = this.gift_selected.replace(/[^\s]/g, '_');
-                gift.innerHTML = this.gift_covered;
-                this.timerG = setInterval(() => this.decodeGift(), 20);
+                /*this.gift_selected = this.message.toUpperCase();
+                this.gift_covered = this.gift_selected.replace(/[^\s]/g, '_');*/
+                gift.innerHTML = this.message;
+                this.isPremio = true ? this.message === "¡Felicidades ganaste!" : false;
+                //this.timerG = setInterval(() => this.decodeGift(), 20);
             }
 
              decodeName() {
@@ -158,12 +178,13 @@
                 person.innerHTML = newtextN;
                 if (this.name_selected == this.name_covered) {
                     clearTimeout(this.timerN);
+                    this._setMessage();
                     return false;
                 }
                 this.name_covered = newtextN;
             }
 
-            decodeGift() {
+            /*decodeGift() {
                 let newtextG = this.gift_covered.split('').map(this.changeLetter(this.gift_selected)).join('');
                 let gift = this.$.gift;
                 gift.innerHTML = newtextG;
@@ -173,7 +194,7 @@
                     return false;
                 }
                 this.gift_covered = newtextG;
-            }
+            }*/
 
             changeLetter(selected) {
                 let replacements = 'ÁÉÍÓÚABCDEFGHIJKLMNOPQRSTUVWXYZ¡!Ñ ';
