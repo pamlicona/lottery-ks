@@ -11,7 +11,7 @@
         <style include="app-styles">
             :host {
                 display: block;
-                min-height: 700px;
+                min-height: 1000px;
                 background: #FFA500;
             }
         </style>
@@ -43,6 +43,7 @@
 
         <div class="cont-button">
             <button on-click="start">Tirar</button>
+            <button on-click="restart">Restaurar</button>
         </div>
         <div class="cont">
           <div class="card rotate" id="person"></div> 
@@ -105,6 +106,15 @@
                 } else {
                     this.aleatorio = Math.floor(Math.random() * this.names.length) + 1;
                 }
+            }
+
+            restart() {
+                let jsonSave = JSON.stringify(this.dataInicial);
+                this.set('actualizada', JSON.parse(jsonSave));
+                this.$.person.innerHTML = '';
+                this.$.gift.innerHTML = '';
+                this.isPremio = false;
+                this.set('premio', 0);
             }
 
             start() {
