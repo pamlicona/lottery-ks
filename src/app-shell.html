@@ -59,13 +59,15 @@
                 <paper-button raised class="pink" on-click="restart">Restaurar</paper-button>
             </div>
             <div class="header-img">
-                <img src="../assets/logo.svg">
-                <p>Kairós</p>
+                    <img src="../assets/unnamed.png">
             </div>
         </div>
         <div class="cont">
-          <div class="card rotate" id="person"></div> 
-          <div class="card rotate" id="gift"></div> 
+            <div class="card rotate" id="person">
+                <img class="logo-name" src="../assets/logo.svg">
+                ¡Buena Suerte a todos!
+            </div> 
+            <div class="card rotate" id="gift"></div> 
         </div>
 
         <template is="dom-if" if="{{isPremio}}">
@@ -97,15 +99,6 @@
                         type: Object,
                         value: 0
                     },
-                    /*aleatorio: {
-                        type: Number
-                    },
-                    name_selected: {
-                        type: String
-                    },
-                    name_covered: {
-                        type: String
-                    },*/
                     isPremio: {
                         type: Boolean,
                         value: false
@@ -115,21 +108,12 @@
 
             actualizadaChanged() {
                 this.set('names', this.actualizada);
-                //this.setLenght();
             }
-
-            /*setLenght() {
-                if (this.names.length > 10) {
-                    this.aleatorio = Math.floor(Math.random() * 10) + 1;
-                } else {
-                    this.aleatorio = Math.floor(Math.random() * this.names.length) + 1;
-                }
-            }*/
 
             restart() {
                 let jsonSave = JSON.stringify(this.dataInicial);
                 this.set('actualizada', JSON.parse(jsonSave));
-                this.$.person.innerHTML = '';
+                this.$.person.innerHTML = '¡Buena Suerte a todos!';
                 this.$.gift.innerHTML = '';
                 this.isPremio = false;
                 this.set('premio', 0);
@@ -141,7 +125,7 @@
                 this._setNames(indice);
                 this.message = '';
                 if (this.contador < 5) {
-                    this.message = "¡Mala suerte!";
+                    this.message = "¡Suerte para la próxima!";
                     this.set('isPremio', false);
                     this.contador++;
                 } else {
@@ -150,7 +134,6 @@
                     this.set('premio', this.premio + 1);
                     //this.setLenght(); 
                 }
-                //this._setMessage();
                 this.splice('names', indice, 1);
                 this._saveData();
             }
@@ -165,11 +148,8 @@
 
             _setMessage() {
                 let gift = this.$.gift;
-                /*this.gift_selected = this.message.toUpperCase();
-                this.gift_covered = this.gift_selected.replace(/[^\s]/g, '_');*/
                 gift.innerHTML = this.message;
                 this.isPremio = true ? this.message === "¡Felicidades ganaste!" : false;
-                //this.timerG = setInterval(() => this.decodeGift(), 20);
             }
 
              decodeName() {
@@ -183,18 +163,6 @@
                 }
                 this.name_covered = newtextN;
             }
-
-            /*decodeGift() {
-                let newtextG = this.gift_covered.split('').map(this.changeLetter(this.gift_selected)).join('');
-                let gift = this.$.gift;
-                gift.innerHTML = newtextG;
-                if (this.gift_selected == this.gift_covered) {
-                    this.isPremio = true ? this.message === "¡Felicidades ganaste!" : false;
-                    clearTimeout(this.timerG);
-                    return false;
-                }
-                this.gift_covered = newtextG;
-            }*/
 
             changeLetter(selected) {
                 let replacements = 'ÁÉÍÓÚABCDEFGHIJKLMNOPQRSTUVWXYZ¡!Ñ ';
